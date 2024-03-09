@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from "mongoose";
+import { Schema, model } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -52,7 +52,6 @@ const userSchema = new Schema(
 userSchema.pre("save", async function () {
   /* In Mongoose, when you use schema.pre('save', () => {}), the arrow function does not have its own this reference. Instead, it inherits the this value from the enclosing lexical context where it is defined. This behavior can lead to unexpected results when accessing instance properties or methods using this inside the arrow function.*/
   if (this.isModified()) this.password = await bcrypt.hash(this.password, 10);
-  next();
 });
 
 userSchema.methods.isPasswordCorrect = async function (password) {
