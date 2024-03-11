@@ -52,17 +52,6 @@ const userRegistration = asyncHandler(async (req, res, next) => {
     throw new ApiError(400, "Server error, Please upload again.");
   }
 
-  // disk cleanup
-
-  avatarLocalPath &&
-    fs.unlink(avatarLocalPath, () => {
-      console.log("avatar cleaned");
-    });
-  coverImageLocalPath &&
-    fs.unlink(coverImageLocalPath, () => {
-      console.log("cover image cleaned");
-    });
-
   // User creation
 
   const user = await User.create({
