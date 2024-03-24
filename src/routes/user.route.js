@@ -1,6 +1,11 @@
 import { Router } from "express";
 import {
+  changePassword,
+  getCurrentUser,
   refreshAccessToken,
+  updateAccountDetails,
+  updateUserAvatar,
+  updateUserCoverImage,
   userLogin,
   userLogout,
   userRegistration,
@@ -30,5 +35,18 @@ userRouter.route("/login").post(userLogin);
 userRouter.route("/logout").post(verifyJWT, userLogout);
 
 userRouter.route("/refresh-token").post(refreshAccessToken);
+
+userRouter.route("/change-password").post(verifyJWT, changePassword);
+
+userRouter
+  .route("/change-account-details")
+  .post(verifyJWT, updateAccountDetails);
+
+userRouter.route("/get-current-user").post(verifyJWT, getCurrentUser);
+
+userRouter.route("/update-user-avatar").post(verifyJWT, updateUserAvatar);
+
+userRouter.route("/update-user-cover-image").post(verifyJWT, updateUserCoverImage);
+
 
 export default userRouter;
