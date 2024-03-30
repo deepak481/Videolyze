@@ -68,7 +68,7 @@ userRouter.route("/update-user-cover-image").post(
 );
 
 userRouter
-  .route("/get-user-channel-profile")
-  .post(verifyJWT, getUserChannelProfile);
+  .route("/get-user-channel-profile/:username")
+  .get(verifyJWT, getUserChannelProfile);
 
 export default userRouter;
