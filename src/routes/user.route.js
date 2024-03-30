@@ -44,9 +44,26 @@ userRouter
 
 userRouter.route("/get-current-user").post(verifyJWT, getCurrentUser);
 
-userRouter.route("/update-user-avatar").post(verifyJWT, updateUserAvatar);
+userRouter.route("/update-user-avatar").post(
+  verifyJWT,
+  upload.fields([
+    {
+      name: "avatar",
+      maxCount: 1,
+    },
+  ]),
+  updateUserAvatar
+);
 
-userRouter.route("/update-user-cover-image").post(verifyJWT, updateUserCoverImage);
-
+userRouter.route("/update-user-cover-image").post(
+  verifyJWT,
+  upload.fields([
+    {
+      name: "coverImage",
+      maxCount: 1,
+    },
+  ]),
+  updateUserCoverImage
+);
 
 export default userRouter;
