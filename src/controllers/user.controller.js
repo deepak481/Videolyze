@@ -7,6 +7,7 @@ import {
 } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 const generateAccessAndRefereshTokens = async (user_id) => {
   try {
@@ -157,8 +158,8 @@ const userLogout = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
     req.user._id,
     {
-      $set: {
-        refreshToken: undefined,
+      $unset: {
+        refreshToken: 1, // this removes the field from document
       },
     },
     {
@@ -435,6 +436,74 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
   }
 });
 
+const getWatchHistory = asyncHandler(async (req, res) => {
+  // get user details from req.user
+  // get watchHistory by join videos to users collection
+  // join users collection as owner to videos collection
+
+  try {
+    const user = await User.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(req.user._id),
+          // why we do _id: new mongoose.Types.ObjectId(req.user._id) even this also gets correct answer _id: req.user._id in aggregate piipline mongodb
+
+          // answer: In MongoDB, the new mongoose.Types.ObjectId() function is commonly used to create ObjectIds, especially when you need to ensure that the ObjectId is generated in a specific format. However, in some cases, such as when using Mongoose with Express.js for web applications, the req.user._id might already be an ObjectId.
+
+          // Using new mongoose.Types.ObjectId(req.user._id) ensures that even if req.user._id is a string representation of an ObjectId, it gets converted into a proper ObjectId object. This is particularly important when you're performing operations such as aggregation in MongoDB, where the type of _id matters for matching and grouping documents correctly.
+
+          // So, in summary, using new mongoose.Types.ObjectId(req.user._id) provides robustness and consistency in handling ObjectId types, ensuring that your MongoDB queries and aggregations behave as expected regardless of the initial format of req.user._id.
+        },
+      },
+      {
+        $lookup: {
+          from: "videos",
+          localField: "watchHistory",
+          foreignField: "_id",
+          as: "userWatchHistory",
+          pipeline: [
+            {
+              $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "owner",
+                pipeline: [
+                  {
+                    $project: {
+                      fullname: 1,
+                      username: 1,
+                      avatar: 1,
+                    },
+                  },
+                ],
+              },
+            },
+            {
+              $addFields: {
+                owner: {
+                  $first: "$owner",
+                },
+              },
+            },
+          ],
+        },
+      },
+    ]);
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          user[0].getWatchHistory,
+          "Watch History fetched successfully"
+        )
+      );
+  } catch (error) {
+    throw new ApiError(404, error.message || "Invalid user");
+  }
+});
+
 export {
   userRegistration,
   userLogin,
@@ -446,4 +515,5 @@ export {
   updateUserAvatar,
   updateUserCoverImage,
   getUserChannelProfile,
+  getWatchHistory,
 };

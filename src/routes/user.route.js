@@ -3,6 +3,7 @@ import {
   changePassword,
   getCurrentUser,
   getUserChannelProfile,
+  getWatchHistory,
   refreshAccessToken,
   updateAccountDetails,
   updateUserAvatar,
@@ -70,5 +71,7 @@ userRouter.route("/update-user-cover-image").post(
 userRouter
   .route("/get-user-channel-profile/:username")
   .get(verifyJWT, getUserChannelProfile);
+
+userRouter.route("/get-watch-history").get(verifyJWT, getWatchHistory);
 
 export default userRouter;
